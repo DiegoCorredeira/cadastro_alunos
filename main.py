@@ -1,8 +1,6 @@
 import tkinter as tk
-from tkinter import Image, ttk
+from tkinter import ttk
 import sqlite3
-from PIL import ImageTk, Image
-
 
 def create_table():
     conn = sqlite3.connect("clientes.db")
@@ -29,29 +27,33 @@ def add_venda():
     data_venda = entry_data_venda.get()
     pago = chekbox_pago.get()
 
-    conn = sqlite3.connect("clientes.db")
-    c = conn.cursor()
-    c.execute(
-        "INSERT INTO vendas (nome, quantidade, saldo_devedor, data_pagamento, data_venda, pago) VALUES (?, ?, ?, ?, ?, ?)",
-        (nome, quantidade, saldo_devedor, data_pagamento, data_venda, pago),
-    )
-    conn.commit()
-    conn.close()
+    if nome and quantidade and saldo_devedor and data_pagamento and data_venda:
+        conn = sqlite3.connect("clientes.db")
+        c = conn.cursor()
+        c.execute(
+            "INSERT INTO vendas (nome, quantidade, saldo_devedor, data_pagamento, data_venda, pago) VALUES (?, ?, ?, ?, ?, ?)",
+            (nome, quantidade, saldo_devedor, data_pagamento, data_venda, pago),
+        )
+        conn.commit()
+        conn.close()
 
-    entry_nome.delete(0, tk.END)
-    entry_quantidade.delete(0, tk.END)
-    entry_saldo_devedor.delete(0, tk.END)
-    entry_data_pagamento.delete(0, tk.END)
-    entry_data_venda.delete(0, tk.END)
-    chekbox_pago.set(0)
+        entry_nome.delete(0, tk.END)
+        entry_quantidade.delete(0, tk.END)
+        entry_saldo_devedor.delete(0, tk.END)
+        entry_data_pagamento.delete(0, tk.END)
+        entry_data_venda.delete(0, tk.END)
+        chekbox_pago.set(0)
 
-    label_status["text"] = "Venda adicionada com sucesso!"
+        label_status["text"] = "Venda adicionada com sucesso!"
+    else:
+        label_status["text"] = "Todos os campos devem ser preenchidos!"
+
 
 def vendas_output():
     conn = sqlite3.connect("clientes.db")
     c = conn.cursor()
     c.execute("SELECT * FROM vendas")
-    vendas = c.fetchall() 
+    vendas = c.fetchall()
     conn.close()
 
     output.delete('1.0', tk.END)
@@ -69,9 +71,8 @@ def vendas_output():
         output.insert(tk.END, f"Saldo devedor: {saldo_devedor}\n")
         output.insert(tk.END, f"Data do pagamento: {data_pagamento}\n")
         output.insert(tk.END, f"Data da venda: {data_venda}\n")
-        output.insert(tk.END, f"Pago: {pago}\n\n") 
-        output.insert(tk.END, f"-------------------------\n\n") 
-
+        output.insert(tk.END, f"Pago: {pago}\n\n")
+        output.insert(tk.END, f"-------------------------\n\n")
 
 
 root = tk.Tk()
@@ -103,7 +104,6 @@ label_data_venda.grid(row=3, column=0, sticky="W")
 label_data_pagamento = ttk.Label(main_frame, text="Data do pagamento: ")
 label_data_pagamento.grid(row=4, column=0, sticky="W")
 
-# Entrada dos labels
 entry_nome = ttk.Entry(main_frame)
 entry_nome.grid(row=0, column=1)
 
@@ -125,7 +125,7 @@ chekbox_pago.set(False)
 checkbox = ttk.Checkbutton(
     main_frame, text="Pago?", variable=chekbox_pago, style="TCheckbutton"
 )
-checkbox.grid(row=5, column=1, sticky="W")
+checkbox.grid(row=5, column=0, columnspan=2, sticky="W")
 
 button_adicionar = ttk.Button(
     main_frame, text="Adicionar venda", command=add_venda, style="TButton"
@@ -137,7 +137,6 @@ button_exibir_clientes.grid(row=7, column=0, columnspan=2, pady=10)
 
 label_status = ttk.Label(main_frame, text="")
 label_status.grid(row=8, column=0, columnspan=2)
-
 
 output_frame = ttk.Frame(root)
 output_frame.grid(row=9, column=0, columnspan=2)
